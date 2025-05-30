@@ -1,0 +1,29 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%post
+    apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+        git \
+        vim \
+        wget \
+        htop \
+        build-essential \
+        python3 \
+        python3-pip \
+        net-tools \
+        iproute2 \
+        ca-certificates \
+        cmake \
+        sudo \
+        ttyd \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
+
+%environment
+    export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+%runscript
+    echo "Launching web-based shell on port 7681 with Authentication"
+    exec ttyd --credential lab_industry4:Ind4@2025lab! -p 7681 bash
+
