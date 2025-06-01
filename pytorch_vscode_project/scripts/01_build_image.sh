@@ -7,7 +7,7 @@ DEF_DIR="$ROOT_DIR/def-files"
 
 mkdir -p "$IMG_DIR"
 
-echo "🔨 Building image …"
+echo "Building image …"
 apptainer build --fakeroot "$IMG_DIR/pytorch_vscode.sif" \
               "$DEF_DIR/pytorch_vscode.def"
-echo "✅ Image ready: $IMG_DIR/pytorch_vscode.sif"
+echo "Image ready: $IMG_DIR/pytorch_vscode.sif"

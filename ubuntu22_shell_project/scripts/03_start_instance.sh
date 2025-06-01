@@ -23,17 +23,17 @@ CMD=(apptainer run --fakeroot --cleanenv --containall \
 if [[ "$PERSISTENT" == "true" ]]; then
   "$SCRIPT_DIR/02_create_overlay.sh" "$USERNAME"
   CMD+=(--overlay "$OVERLAY_DIR")
-  echo "🚀 Starting *persistent* container $INSTANCE_NAME …"
+  echo "Starting *persistent* container $INSTANCE_NAME …"
 else
   CMD+=(--writable-tmpfs)
-  echo "🚀 Starting *ephemeral* container $INSTANCE_NAME …"
+  echo "Starting *ephemeral* container $INSTANCE_NAME …"
 fi
 
 CMD+=(--env PORT="$PORT" "$IMG")
 
-echo "🔧 ${CMD[*]}"
+echo "${CMD[*]}"
 "${CMD[@]}"
 
-echo "✅ Container [$INSTANCE_NAME] is running."
-echo "🔗 Open your browser: http://localhost:${PORT}"
+echo "Container [$INSTANCE_NAME] is running."
+echo "Open your browser: http://localhost:${PORT}"
 

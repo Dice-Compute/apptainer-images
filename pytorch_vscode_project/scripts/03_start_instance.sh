@@ -22,19 +22,19 @@ CMD=(apptainer instance start --fakeroot --cleanenv --containall \
 if [[ "$PERSISTENT" == "true" ]]; then
   "$SCRIPT_DIR/02_create_overlay.sh" "$USERNAME"
   CMD+=(--overlay "$OVERLAY_DIR")
-  echo "🚀 Starting *persistent* instance $INSTANCE_NAME …"
+  echo "Starting *persistent* instance $INSTANCE_NAME …"
 else
   CMD+=(--writable-tmpfs)
-  echo "🚀 Starting *ephemeral* instance $INSTANCE_NAME …"
+  echo "Starting *ephemeral* instance $INSTANCE_NAME …"
 fi
 
 apptainer instance stop "$INSTANCE_NAME" >/dev/null 2>&1 || true
 
 CMD+=(--env PORT="$PORT" "$IMG" "$INSTANCE_NAME")
 
-echo "🔧 ${CMD[*]}"
+echo "${CMD[*]}"
 "${CMD[@]}"
 
-echo "✅ Instance [$INSTANCE_NAME] is running."
-echo "🔗 Open: http://localhost:${PORT}"
+echo "Instance [$INSTANCE_NAME] is running."
+echo "Open: http://localhost:${PORT}"
 
