@@ -118,7 +118,5 @@ Check running instances:
 ./05_list_instances.sh
 ```
 
-## License
 
-MIT License - See LICENSE file for details.
 
