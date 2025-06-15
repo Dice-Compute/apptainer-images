@@ -1,136 +1,124 @@
-# 🐧 Container-Based Instance Manager with OverlayFS
+# Apptainer Container Management Scripts
 
-This repository provides a collection of Bash scripts to build and manage lightweight, isolated Linux instances using OverlayFS and Linux namespaces — without relying on Docker or other container runtimes.
+This repository contains shell scripts to simplify the management of Apptainer (formerly Singularity) containers. These scripts help you build images, create overlays, start and stop container instances, and list running instances.
 
----
+## Prerequisites
 
-## 📦 Overview
+* Apptainer installed
+* Shell (bash recommended)
+* Linux-based OS (tested on Ubuntu)
 
-The system simulates container-like environments by:
-
-- Building a minimal Debian root filesystem
-- Creating writable overlays per instance
-- Running each instance with `unshare`, `chroot`, and its own namespace
-- Allowing you to start, stop, and list isolated instances
-
-This is ideal for educational purposes, testing Linux isolation concepts, or creating minimal container-like setups.
-
----
-
-## ⚙️ Requirements
-
-Make sure your system supports:
-
-- Linux with OverlayFS support
-- `sudo` privileges
-- Installed tools:
-  - `debootstrap`
-  - `unshare` (from `util-linux`)
-  - `iproute2`, `iputils-ping` (optional for testing from inside container)
-
----
-
-## 📁 Directory Structure
+## Directory Structure
 
 ```
 .
-├── image/
-│   └── rootfs/                  # Base Debian root filesystem
-├── instances/
-│   └── <instance_name>/
-│       ├── upper/               # Writable overlay
-│       ├── work/                # Workdir for OverlayFS
-│       ├── merged/              # Merged mount point
-│       └── pidfile              # Stores instance PID
-├── 01_build_image.sh            # Builds the rootfs using debootstrap
-├── 02_create_overlay.sh         # Creates overlay dirs for an instance
-├── 03_start_instance.sh         # Launches an isolated container
-├── 04_stop_instance.sh          # Stops and cleans up the instance
-└── 05_list_instances.sh         # Shows running instances
+├── images/
+│   └── ubuntu22_shell.sif
+├── overlays/
+├── def-files/
+│   └── ubuntu22_shell.def
+└── scripts/
+    ├── 01_build_image.sh
+    ├── 02_create_overlay.sh
+    ├── 03_start_instance.sh
+    ├── 04_stop_instance.sh
+    └── 05_list_instances.sh
 ```
 
----
+## Scripts Explanation and Usage
 
-## 🚀 Usage
+### 1. `01_build_image.sh`
 
-### 🔨 1. Build the Base Image
+Builds an Apptainer image (`.sif`) from a definition file.
+
+**Usage:**
 
 ```bash
-sudo ./01_build_image.sh
+./01_build_image.sh
 ```
 
-This uses `debootstrap` to download and extract a minimal Debian filesystem into `image/rootfs`.
+### 2. `02_create_overlay.sh`
 
----
+Creates overlay directories for persistent storage.
 
-### 🧱 2. Create an Overlay for an Instance
+**Usage:**
 
 ```bash
-./02_create_overlay.sh <instance_name>
+./02_create_overlay.sh <username>
 ```
 
-This creates a layered filesystem under `instances/<instance_name>/`:
-- `upper/` — Writable layer for the instance
-- `work/` — Required by OverlayFS
-- `merged/` — Mount point where final FS is created
+### 3. `03_start_instance.sh`
 
----
+Starts an Apptainer container instance.
 
-### 🧬 3. Start the Instance
+**Arguments:**
+
+* `<username>`: Required. User-specific overlay.
+* `<persistent>`: Optional (`true` or `false`). Default is `false`.
+* `<use_gpu>`: Optional (`true` or `false`). Default is `false`.
+* `<port>`: Optional. Default is `7681`.
+
+**Usage:**
+
+Persistent instance:
 
 ```bash
-sudo ./03_start_instance.sh <instance_name>
+./03_start_instance.sh username true false 7681
 ```
 
-This will:
-- Mount the overlay filesystem
-- Use `unshare` to isolate the UTS, PID, and mount namespaces
-- `chroot` into the `merged/` directory
-- Launch a new shell
-
-Inside the shell, you'll be running as root within an isolated environment.
-
----
-
-### 🛑 4. Stop the Instance
+Ephemeral instance:
 
 ```bash
-sudo ./04_stop_instance.sh <instance_name>
+./03_start_instance.sh username false false 7681
 ```
 
-- Reads the PID from `pidfile`
-- Sends `SIGKILL` to the instance process
-- Unmounts and cleans up the `merged/` mount point
+### 4. `04_stop_instance.sh`
 
----
+Stops the specified Apptainer container instance.
 
-### 📋 5. List Running Instances
+**Usage:**
+
+```bash
+./04_stop_instance.sh <username>
+```
+
+### 5. `05_list_instances.sh`
+
+Lists all running Apptainer instances.
+
+**Usage:**
 
 ```bash
 ./05_list_instances.sh
 ```
 
-Lists all currently active containers (those with a `pidfile` and active process), along with their names and PIDs.
+## Quick Start
 
----
-
-## 📌 Notes
-
-- This does not set up network namespaces or virtual ethernet pairs — but you can extend it!
-- It’s intended for educational/demo purposes — not production.
-- You can install packages into the base image by entering it manually:
+To quickly build an image, create an overlay, and start an instance:
 
 ```bash
-sudo chroot image/rootfs /bin/bash
+./01_build_image.sh
+./02_create_overlay.sh myusername
+./03_start_instance.sh myusername true false 7681
 ```
 
----
+Then open your browser and navigate to `http://localhost:7681`.
 
-## 🧠 Concepts Used
+## Stopping and Cleanup
 
-- **OverlayFS**: Combines read-only base image with writable upper layers.
-- **Linux namespaces**: Isolate UTS, PID, and mount environments.
-- **chroot**: Changes root filesystem to the merged overlay directory.
-- **debootstrap**: Builds a minimal Debian system.
+Stop the container:
 
----
+```bash
+./04_stop_instance.sh myusername
+```
+
+Check running instances:
+
+```bash
+./05_list_instances.sh
+```
+
+## License
+
+MIT License - See LICENSE file for details.
+
